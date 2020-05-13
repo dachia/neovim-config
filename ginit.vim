@@ -21,6 +21,7 @@ if !exists('g:vscode')
   Plug 'vim-airline/vim-airline-themes'
 
   " editing plugs
+  Plug 'jiangmiao/auto-pairs'
   Plug 'tpope/vim-surround'
   Plug 'nathanaelkane/vim-indent-guides'
   Plug 'ntpeters/vim-better-whitespace'
