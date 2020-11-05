@@ -45,4 +45,4 @@ Applicable to windows first and foremost because thats my OS of choice
   cp ./init.vim ~/AppData/Local/nvim
   ```
  - Run `:PlugInstall`
- - Build, might need to pass `--vs` flag https://github.com/ycm-core/YouCompleteMe#windows
+ - Build, might need to pass `python C:\Users\artur\AppData\Local\nvim\plug\YouCompleteMe\install.py --msvc 15 --ts-completer` flag https://github.com/ycm-core/YouCompleteMe#windows

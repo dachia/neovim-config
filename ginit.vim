@@ -1,55 +1,44 @@
 set nocompatible              " required
 filetype off                  " required
 
+let g:python3_host_prog = 'C:\Python37\python.exe'
+
 call plug#begin('$localappdata/nvim/plug/')
+  " extensions
+  Plug 'ycm-core/YouCompleteMe', { 'do': 'python install.py --msvc 15 --ts-completer' }
+  Plug 'dense-analysis/ale'
+  Plug 'preservim/nerdtree'
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'junegunn/fzf.vim'
+  Plug 'vim-airline/vim-airline'
 
-" extensions
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'dense-analysis/ale'
-Plug 'preservim/nerdtree'
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-Plug 'vim-airline/vim-airline'
-Plug 'kassio/neoterm'
+  " languages
+  Plug 'sheerun/vim-polyglot'
 
-" languages
-Plug 'sheerun/vim-polyglot'
-
-" theme
-Plug 'iCyMind/NeoSolarized'
-Plug 'vim-airline/vim-airline-themes'
-
-" editing plugs
-Plug 'heavenshell/vim-jsdoc', { 'for': ['javascript', 'javascript.jsx','typescript'], 'do': 'make install' }
-Plug 'jiangmiao/auto-pairs'
-Plug 'tpope/vim-surround'
-Plug 'nathanaelkane/vim-indent-guides'
-Plug 'ntpeters/vim-better-whitespace'
-Plug 'godlygeek/tabular'
+  " editing plugs
+  Plug 'heavenshell/vim-jsdoc', { 'for': ['javascript', 'javascript.jsx','typescript'], 'do': 'npm i lehre' }
+  Plug 'jiangmiao/auto-pairs'
+  Plug 'tpope/vim-surround'
+  Plug 'nathanaelkane/vim-indent-guides'
+  Plug 'ntpeters/vim-better-whitespace'
+  Plug 'godlygeek/tabular'
+  Plug 'ncm2/float-preview.nvim'
 call plug#end()
 
 filetype plugin indent on    " required
 syntax enable
 
-colorscheme NeoSolarized
-
-set termguicolors
-set background=light
 set autowrite
 set nu
 set splitright
 set encoding=utf-8
 set showmatch
 set wildignore=**/venv/**,**/externals/**,**/node_modules/**
-set nolz
-
+"
 " config plugins
 let g:jsdoc_lehre_path = '$localappdata/nvim/plug/vim-jsdoc/node_modules/lehre/bin/lehre'
 let g:javascript_plugin_jsdoc = 1
 let g:ale_lint_on_enter = 0
-let g:deoplete#enable_at_startup = 1
-
-let g:airline_theme='solarized'
 let g:airline#extensions#tabline#formatter='default'
 let g:airline#extensions#tabline#enabled=1
 let g:airline#extensions#ale#enabled=1
@@ -57,13 +46,10 @@ let g:airline#extensions#ale#enabled=1
 let g:indent_guides_enable_on_vim_startup=1
 let g:indent_guides_start_level=2
 
+let g:float_preview#docked = 1
 " mappings
 let mapleader="z"
-" term config
-let g:neoterm_default_mod="botright"
-let g:neoterm_size=20
-let g:neoterm_fixedsize=1
-
+"
 " replace bindings
 nnoremap <leader>r yiw:%s/\<<C-r><C-w>\>//gc<left><left><left>
 
