@@ -34,6 +34,11 @@ Applicable to windows first and foremost because thats my OS of choice
   New-Alias -Name v -Value 'C:\tools\neovim\Neovim\bin\nvim-qt.exe'
   ```
 
+ - neovim
+  ```
+    npm i lehre --prefix C:\Users\artur\AppData\Local\nvim\plug\vim-jsdoc\
+  ```
+
  - copy configs
   ```
   cp ./ginit.vim ~/AppData/Local/nvim
