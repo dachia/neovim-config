@@ -16,7 +16,6 @@ call plug#begin('$localappdata/nvim/plug/')
   Plug 'sheerun/vim-polyglot'
 
   " editing plugs
-  Plug 'heavenshell/vim-jsdoc', { 'for': ['javascript', 'javascript.jsx','typescript'], 'do': 'npm i lehre' }
   Plug 'jiangmiao/auto-pairs'
   Plug 'tpope/vim-surround'
   Plug 'nathanaelkane/vim-indent-guides'
@@ -29,14 +28,13 @@ filetype plugin indent on    " required
 syntax enable
 
 set autowrite
-set nu
+set nu rnu
 set splitright
 set encoding=utf-8
 set showmatch
-set wildignore=**/venv/**,**/externals/**,**/node_modules/**
+set wildignore=**/.git/**,**/venv/**,**/externals/**,**/node_modules/**
 "
 " config plugins
-let g:jsdoc_lehre_path = '$localappdata/nvim/plug/vim-jsdoc/node_modules/lehre/bin/lehre'
 let g:javascript_plugin_jsdoc = 1
 let g:ale_lint_on_enter = 0
 let g:airline#extensions#tabline#formatter='default'
