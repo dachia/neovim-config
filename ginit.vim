@@ -5,7 +5,7 @@ if !exists('g:vscode')
   call plug#begin('$localappdata/nvim/plug/')
 
   " extensions
-  Plug 'ycm-core/YouCompleteMe'
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
   Plug 'dense-analysis/ale'
   Plug 'preservim/nerdtree'
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -44,7 +44,9 @@ if !exists('g:vscode')
   set nolz
 
   " config plugins
+  let g:javascript_plugin_jsdoc = 1
   let g:ale_lint_on_enter = 0
+  let g:deoplete#enable_at_startup = 1
 
   let g:airline_theme='solarized'
   let g:airline#extensions#tabline#formatter='default'
