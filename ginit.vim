@@ -45,6 +45,8 @@ let g:airline#extensions#ale#enabled=1
 let g:indent_guides_enable_on_vim_startup=1
 let g:indent_guides_start_level=2
 
+let mapleader="z"
+
 """""" CoC config
 let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-html', 'coc-eslint', 'coc-tsserver']
 set hidden
@@ -106,10 +108,7 @@ function! s:show_documentation()
   endif
 endfunction
 
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
-
+nnoremap <leader>x :CocAction<CR> 
 
 """""" End CoC config
 
@@ -117,11 +116,9 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " let g:float_preview#docked = 1
 " mappings
-let mapleader="z"
 "
 " replace bindings
 nnoremap <leader>r yiw:%s/\<<C-r><C-w>\>//gc<left><left><left>
-
 
 " term bindings
 nnoremap <A-t> :Tnew<CR>
