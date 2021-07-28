@@ -1,22 +1,33 @@
 set nocompatible              " required
-filetype off                  " required
 
 let g:python3_host_prog = 'C:\Python37\python.exe'
 
 call plug#begin('$localappdata/nvim/plug/')
-  " extensions
-  Plug 'neovim/nvim-lspconfig'
+  " fuzzy search, telescope is great but doesn't show all results which is
+  " useless
+  " Plug 'nvim-lua/popup.nvim'
+  " Plug 'nvim-lua/plenary.nvim'
+  " Plug 'nvim-telescope/telescope.nvim'
+
   Plug 'nvim-lua/completion-nvim'
+  Plug 'neovim/nvim-lspconfig'
+  " database
+  Plug 'tpope/vim-dadbod'
+  Plug 'kristijanhusak/vim-dadbod-completion'
+  Plug 'kristijanhusak/vim-dadbod-ui'
   " UI for lsp
   Plug 'glepnir/lspsaga.nvim'
 
   Plug 'preservim/nerdtree'
-  Plug 'nvim-lua/popup.nvim'
-  Plug 'nvim-lua/plenary.nvim'
-  Plug 'nvim-telescope/telescope.nvim'
+  "
   " Fzf faster than telescope, but ui could use some work
-  " Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-  " Plug 'junegunn/fzf.vim'
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'junegunn/fzf.vim'
+  " Doesn't work on windows
+  " Plug 'vijaymarupudi/nvim-fzf' " requires the nvim-fzf library
+  " Plug 'vijaymarupudi/nvim-fzf-commands'
+
+
   Plug 'hoob3rt/lualine.nvim'
 
   " languages
@@ -32,10 +43,6 @@ call plug#begin('$localappdata/nvim/plug/')
   " Plug 'ntpeters/vim-better-whitespace'
   " Plug 'godlygeek/tabular'
 call plug#end()
-
-let g:LanguageClient_serverCommands = {
-  \ 'sql': ['sql-language-server', 'up', '--method', 'stdio'],
-  \ }
 
 " Install and configure treesitter
 lua <<EOF
@@ -63,7 +70,7 @@ lua <<EOF
       "html",
       "css",
       "python"
-    },
+    }
   }
 
   local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
@@ -104,21 +111,49 @@ lua <<EOF
     buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
     buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
     buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+
+    client.CompletionItemKind = {
+      '', -- Text
+      '', -- Method
+      '', -- Function
+      '', -- Constructor
+      '', -- Field
+      '', -- Variable
+      '', -- Class
+      'ﰮ', -- Interface
+      '', -- Module
+      '', -- Property
+      '', -- Unit
+      '', -- Value
+      '', -- Enum
+      '', -- Keyword
+      '﬌', -- Snippet
+      '', -- Color
+      '', -- File
+      '', -- Reference
+      '', -- Folder
+      '', -- EnumMember
+      '', -- Constant
+      '', -- Struct
+      '', -- Event
+      'ﬦ', -- Operator
+      '', -- TypeParameter
+    }
     
-    require'completion'.on_attach(client, bufnr)
-    
-    if client.resolved_capabilities.document_formatting then
-      vim.api.nvim_command [[augroup Format]]
-      vim.api.nvim_command [[autocmd! * <buffer>]]
-      vim.api.nvim_command [[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_seq_sync()]]
-      vim.api.nvim_command [[augroup END]]
-    end
+    -- Don't format on save
+    -- if client.resolved_capabilities.document_formatting then
+    --   vim.api.nvim_command [[augroup Format]]
+    --   vim.api.nvim_command [[autocmd! * <buffer>]]
+    --   vim.api.nvim_command [[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_seq_sync()]]
+    --   vim.api.nvim_command [[augroup END]]
+    -- end
   end
   
   -- for linters and such
   nvim_lsp.diagnosticls.setup {
     on_attach = on_attach,
     filetypes = { 'javascript', 'javascriptreact', 'json', 'typescript', 'typescriptreact', 'css', 'less', 'scss', 'markdown', 'pandoc' },
+    cmd = {'C:/Program Files/nodejs/diagnostic-languageserver.cmd', '--stdio'},
     init_options = {
       linters = {
         eslint = {
@@ -173,31 +208,27 @@ lua <<EOF
       }
     }
   }
-  
+
   -- Use a loop to conveniently call 'setup' on multiple servers and
   -- map buffer local keybindings when the language server attaches
+  local debounce = 100
   
-  local servers = { "pyright", "sqlls", "tsserver" }
+  nvim_lsp["pyright"].setup {
+    on_attach = on_attach,
+    flags = {
+      debounce_text_changes = debounce,
+    },
+  }
+  nvim_lsp["tsserver"].setup {
+    on_attach = on_attach,
+    flags = {
+      debounce_text_changes = debounce,
+    },
+  }
   
-  for _, lsp in ipairs(servers) do
-    if lsp == "sqlls" then
-      nvim_lsp[lsp].setup {
-        on_attach = on_attach,
-        flags = {
-          debounce_text_changes = 150,
-        },
-        cmd = {"C:\\Program Files\\nodejs\\sql-language-server.ps1", "up", "--method", "stdio"}
-      }
-    else
-      nvim_lsp[lsp].setup {
-        on_attach = on_attach,
-        flags = {
-          debounce_text_changes = 150,
-        }
-      }
-    end
-  end
 EOF
+
+autocmd BufEnter * lua require'completion'.on_attach()
 
 lua <<EOF
   require'lualine'.setup {
@@ -205,25 +236,48 @@ lua <<EOF
   }
 EOF
 
-lua require 'lspsaga'.init_lsp_saga()
-
 lua <<EOF
-  local actions = require'telescope.actions'
-  require'telescope'.setup{
-    defaults = {
-      mappings = {
-        n = {
-          ["q"] = actions.close
-        },
-      },
-    }
-  }
+require 'lspsaga'.init_lsp_saga {
+  error_sign = '',
+  warn_sign = '',
+  hint_sign = '',
+  infor_sign = '',
+  border_style = "round",
+}
 EOF
 
-" completion vim
-autocmd BufEnter * lua require'completion'.on_attach()
+" lua <<EOF
+"   local actions = require'telescope.actions'
+"   require'telescope'.setup{
+"     defaults = {
+"       mappings = {
+"         n = {
+"           ["q"] = actions.close
+"         },
+"       },
+"     }
+"   }
+" EOF
+"
+" For completion-nvim
+augroup completion
+  autocmd!
+  autocmd BufEnter * lua require'completion'.on_attach()
+  autocmd FileType sql let g:completion_trigger_character = ['.', '"', '`', '[']
+augroup END
 
+" Source is automatically added, you just need to include it in the chain complete list
+let g:completion_chain_complete_list = {
+    \   'sql': [
+    \    {'complete_items': ['vim-dadbod-completion']},
+    \   ],
+    \ }
+" Make sure `substring` is part of this list. Other items are optional for this completion source
+let g:completion_matching_strategy_list = ['exact', 'substring']
+" Useful if there's a lot of camel case items
+let g:completion_matching_ignore_case = 1
 filetype plugin indent on    " required
+
 syntax enable
 
 set autowrite
@@ -256,35 +310,26 @@ inoremap <silent><C-k> <Cmd>Lspsaga signature_help<CR>
 nnoremap <silent>K :Lspsaga hover_doc<CR>
 nnoremap <silent>gh <Cmd>Lspsaga lsp_finder<CR>
 
-" term bindings
-nnoremap <A-t> :Tnew<CR>
-inoremap <A-t> <Esc> :Tnew<CR>
-tnoremap <A-t> <C-\><C-n> :Tnew<CR>
-
-nnoremap <A-`> :TtoggleAll<CR>
-inoremap <A-`> <Esc> :TtoggleAll<CR>
-tnoremap <A-`> <C-\><C-n> :TtoggleAll<CR>
-
-" term normal mode
-tnoremap <Esc> <C-\><C-n>
-tnoremap :q! <C-\><C-n>:q!<CR>
-
 " tab nav
 nnoremap <C-t> :tabnew<CR>
 nnoremap <C-Left> :tabprevious<CR>
 nnoremap <C-Right> :tabnext<CR>
 
+"
+nnoremap <C-b> :DBUI<CR>
 
 " nerdtree
 nnoremap <C-n> :NERDTreeToggle<CR>
 "
 " fuzzy search
-nnoremap <C-p> <cmd>Telescope find_files<cr>
-nnoremap <C-g> <cmd>Telescope live_grep<cr>
-nnoremap <silent> \\ <cmd>Telescope buffers<cr>
-nnoremap <silent> ;; <cmd>Telescope help_tags<cr>
-" map <C-p> :FZF<CR>
-" map <C-g> :Rg<CR>
+" nnoremap <C-p> <cmd>Telescope find_files<cr>
+" nnoremap <C-g> <cmd>Telescope live_grep<cr>
+" nnoremap <silent> \\ <cmd>Telescope buffers<cr>
+" nnoremap <silent> ;; <cmd>Telescope help_tags<cr>
+nnoremap <C-p> :FZF<CR>
+nnoremap <C-g> :Rg<CR>
+" nnoremap <C-p> <cmd>lua require("fzf-commands").files()<CR>
+" nnoremap <C-g> <cmd>lua require("fzf-commands").rg()<CR>
 
 set ts=2 sw=2 et
 set clipboard+=unnamedplus

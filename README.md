@@ -47,8 +47,4 @@ Applicable to windows first and foremost because thats my OS of choice
  - Run `:PlugInstall`
  - Build, might need to pass `python C:\Users\artur\AppData\Local\nvim\plug\YouCompleteMe\install.py --msvc 15 --ts-completer` flag https://github.com/ycm-core/YouCompleteMe#windows
  - Language servers (setup guide https://github.com/neovim/nvim-lspconfig/blob/master/CONFIG.md#sqlls)
-  - sql: npm i -g sql-language-server
-  - ts: npm install -g typescript typescript-language-server
-  - python: npm install -g pyright
-  - diagnostic ls: npm install -g diagnostic-languageserver
-  - eslint daemon and prettier global: npm i -g eslint_d prettier
+  - sql/ts/python/diagnostic ls/eslint daemon and prettier global: npm i -g sql-language-server typescript typescript-language-server pyright diagnostic-languageserver eslint eslint_d prettier neovim
