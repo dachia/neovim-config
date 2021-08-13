@@ -32,7 +32,6 @@ call plug#begin('$localappdata/nvim/plug/')
 
   " languages
   Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
-
   " icons
   Plug 'kyazdani42/nvim-web-devicons'
 
@@ -72,7 +71,6 @@ lua <<EOF
       "python"
     }
   }
-
   local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
   parser_config.tsx.used_by = { "javascript", "typescript.tsx" }
 EOF
