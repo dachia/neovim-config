@@ -1,50 +1,62 @@
 # Neovim configuration files and requirements
 
-Applicable to windows first and foremost because thats my OS of choice
+Configuration instructions for neovim
 
-## Installation
+Requiremens:
 
- - ripgrep for fuzzy search 
-  `choco install ripgrep`
+  1. node.js and npm
 
- - fzf for filtering(fuzzy finder)
-  `choco install fzf`
-  to use rigprep as a default command for fzf add environmental variable(respect .gitignore and exclude hidden)
+## Windows
+
+Installation instructions on windows. Prerequisites:
+  
+  1. chocolatey package manager
+
+### Neovim
+
+  1. Install neovim
+   `choco install neovim`
+  
+
+### Fuzzy search
+
+  Uses external tool for fuzzy file search and fuzzy search inside files.
+
+  1. ripgrep for fuzzy search 
+   `choco install ripgrep`
+
+  2. fzf for filtering(fuzzy finder)
+   `choco install fzf`
+
+  3. to use rigprep as a default command for fzf add environmental variable(respect .gitignore and exclude hidden)
   `FZF_DEFAULT_COMMAND=rg --files --hidden`
 
- - vim plug to manage vim plugins
-  ```
-    md ~\AppData\Local\nvim\autoload
-    $uri = 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-    (New-Object Net.WebClient).DownloadFile(
-      $uri,
-      $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath(
-        "~\AppData\Local\nvim\autoload\plug.vim"
-      )
-    )
-  ```
+### Neovim package manager
 
- - install neovim
-  `choco install neovim`
+  1. packer.nvim
+   `git clone https://github.com/wbthomason/packer.nvim "$env:LOCALAPPDATA\nvim-data\site\pack\packer\start\packer.nvim"`
 
- - add powershell alias
-  ```
-  nvim $PROFILE
+### Add powershell alias
 
-  New-Alias -Name v -Value 'C:\tools\neovim\Neovim\bin\nvim-qt.exe'
-  ```
+  1. edit powershell profile
+   `nvim $PROFILE`
 
- - neovim
-  ```
-    npm i lehre --prefix C:\Users\artur\AppData\Local\nvim\plug\vim-jsdoc\
-  ```
+  2. Add new line (change patch to where choco install by default)
+   `New-Alias -Name v -Value 'C:\tools\neovim\Neovim\bin\nvim-qt.exe'`
 
- - copy configs
-  ```
-  cp ./ginit.vim ~/AppData/Local/nvim
-  cp ./init.vim ~/AppData/Local/nvim
-  ```
- - Run `:PlugInstall`
- - Build, might need to pass `python C:\Users\artur\AppData\Local\nvim\plug\YouCompleteMe\install.py --msvc 15 --ts-completer` flag https://github.com/ycm-core/YouCompleteMe#windows
- - Language servers (setup guide https://github.com/neovim/nvim-lspconfig/blob/master/CONFIG.md#sqlls)
-  - sql/ts/python/diagnostic ls/eslint daemon and prettier global: npm i -g sql-language-server typescript typescript-language-server pyright diagnostic-languageserver eslint eslint_d prettier neovim
+### Copy neovim configs
+
+  1. Copy configs
+   ```
+   cp -Recurse -Force ./lua ~/AppData/Local/nvim
+   cp ./init.lua ~/AppData/Local/nvim
+   ```
+
+## Other requirements
+
+  1. Language servers, neovim/py/ts bindings, linters
+   `npm i -g sql-language-server typescript typescript-language-server pyright diagnostic-languageserver eslint eslint_d prettier neovim`
+
+## Install neovim plugins
+
+  1. `:PackerInstall`
