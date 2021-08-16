@@ -233,6 +233,7 @@ g.completion_enable_snippet = 'snippets.nvim'
 g.completion_enable_auto_signature = 1
 g.completion_enable_auto_hover = 1
 g.completion_enable_auto_popup = 1
+g.completion_timer_cycle = 1
 
 -- indent guides 
 g.indent_guides_enable_on_vim_startup = 1
@@ -264,8 +265,15 @@ opt.ttimeoutlen = 100               -- for leader key
 map('n', '<Leader>r', 'yiw:%s/\\<<C-r><C-w>\\>//gc<left><left><left>')
 -- Tabs
 map('n', '<C-t>', ':tabnew<CR>')
-map('n', '<C-Left>', ':tabprevious<CR>')
-map('n', '<C-Right>', ':tabnext<CR>')
+
+if is_win then
+  map('n', '<C-Left>', ':tabprevious<CR>')
+  map('n', '<C-Right>', ':tabnext<CR>')
+else
+  map('n', '<A-Left>', ':tabprevious<CR>')
+  map('n', '<A-Right>', ':tabnext<CR>')
+end
+
 -- DB maps
 map('n', '<C-b>', ':DBUI<CR>')
 -- File tree maps
