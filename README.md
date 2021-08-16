@@ -11,6 +11,7 @@ Requiremens:
 Installation instructions on windows. Prerequisites:
   
   1. chocolatey package manager
+  2. Enable developer mode
 
 ### Neovim
 
@@ -54,8 +55,8 @@ Installation instructions on windows. Prerequisites:
 
 ## Other requirements
 
-  1. Language servers, neovim/py/ts bindings, linters
-   `npm i -g sql-language-server typescript typescript-language-server pyright diagnostic-languageserver eslint eslint_d prettier neovim`
+  1. Language servers, neovim/py/ts bindings, linters(older language server isnt working)
+   `npm i -g typescript typescript-language-server@0.5.4 pyright diagnostic-languageserver eslint eslint_d prettier neovim`
 
 ## Install neovim plugins
 
