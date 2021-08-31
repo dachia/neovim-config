@@ -12,14 +12,19 @@ require("plugins")
 
 local is_win = fn.has('win32') == 1 or false
 
-
-
 -- Tree sitter
 require'nvim-treesitter.configs'.setup {
   highlight = {
     enable = true,
   },
-  tree_docs = {enable = true},
+  tree_docs = {
+    enable = true,
+    spec_config = {
+      jsdoc = {
+        empty_line_after_description = true
+      }
+    }
+  },
   incremental_selection = {
     enable = true,
     keymaps = {
@@ -30,7 +35,40 @@ require'nvim-treesitter.configs'.setup {
     },
   },
   indent = {
-    enable = false
+    enable = true
+  },
+  textobjects = {
+    select = {
+      enable = true,
+      lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
+      keymaps = {
+        -- You can use the capture groups defined in textobjects.scm
+        ['af'] = '@function.outer',
+        ['if'] = '@function.inner',
+        ['ac'] = '@class.outer',
+        ['ic'] = '@class.inner',
+      },
+    },
+    move = {
+      enable = true,
+      set_jumps = true, -- whether to set jumps in the jumplist
+      goto_next_start = {
+        [']m'] = '@function.outer',
+        [']]'] = '@class.outer',
+      },
+      goto_next_end = {
+        [']M'] = '@function.outer',
+        [']['] = '@class.outer',
+      },
+      goto_previous_start = {
+        ['[m'] = '@function.outer',
+        ['[['] = '@class.outer',
+      },
+      goto_previous_end = {
+        ['[M'] = '@function.outer',
+        ['[]'] = '@class.outer',
+      },
+    },
   },
   ensure_installed = {
     "tsx",
@@ -123,9 +161,9 @@ local on_attach = function(client, bufnr)
   --   vim.api.nvim_command [[augroup END]]
   -- end
 end
-  
-local diagnostic_cmd
+--
 
+local diagnostic_cmd
 if is_win then
   diagnostic_cmd = {'C:/Program Files/nodejs/diagnostic-languageserver.cmd', '--stdio'}
 else
@@ -194,19 +232,25 @@ nvim_lsp.diagnosticls.setup {
 
 -- Use a loop to conveniently call 'setup' on multiple servers and
 -- map buffer local keybindings when the language server attaches
-local debounce = 100
+-- nvim-cmp supports additional completion capabilities
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities) 
+
+local debounce_text_changes = 20
 
 nvim_lsp["pyright"].setup {
   on_attach = on_attach,
+  capabilities = capabilities,
   flags = {
-    debounce_text_changes = debounce,
-  },
+    debounce_text_changes = debounce_text_changes,
+  }
 }
 nvim_lsp["tsserver"].setup {
   on_attach = on_attach,
+  capabilities = capabilities,
   flags = {
-    debounce_text_changes = debounce,
-  },
+    debounce_text_changes = debounce_text_changes,
+  }
 }
   
 require 'lualine'.setup {
@@ -221,25 +265,77 @@ require 'lspsaga'.init_lsp_saga {
   border_style = "round",
 }
 
-require 'snippets'.use_suggested_mappings(true)
+-- snippets
+local luasnip = require 'luasnip'
 
-cmd [[
-  autocmd BufEnter * lua require'completion'.on_attach()
-]]
+-- autocompletion
+
+local cmp = require 'cmp'
+cmp.setup {
+  snippet = {
+    expand = function(args)
+      require('luasnip').lsp_expand(args.body)
+    end,
+  },
+  mapping = {
+    -- ['<C-p>'] = cmp.mapping.select_prev_item(),
+    -- ['<C-n>'] = cmp.mapping.select_next_item(),
+    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-p>'] = cmp.mapping.complete(),
+    -- ['<C-e>'] = cmp.mapping.close(),
+    ['<CR>'] = cmp.mapping.confirm {
+      behavior = cmp.ConfirmBehavior.Replace,
+      select = true,
+    },
+    ['<Tab>'] = function(fallback)
+      if vim.fn.pumvisible() == 1 then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<C-n>', true, true, true), 'n')
+      elseif luasnip.expand_or_jumpable() then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-expand-or-jump', true, true, true), '')
+      else
+        fallback()
+      end
+    end,
+    ['<S-Tab>'] = function(fallback)
+      if vim.fn.pumvisible() == 1 then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<C-p>', true, true, true), 'n')
+      elseif luasnip.jumpable(-1) then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-jump-prev', true, true, true), '')
+      else
+        fallback()
+      end
+    end,
+  },
+  sources = {
+    { name = 'nvim_lsp' },
+    { name = 'luasnip' },
+  },
+}
 
 -- Complete nvim config
-opt.completeopt = {'menuone', 'noinsert', 'noselect'}
-g.completion_enable_snippet = 'snippets.nvim'
-g.completion_enable_auto_signature = 1
-g.completion_enable_auto_hover = 1
-g.completion_enable_auto_popup = 1
-g.completion_timer_cycle = 1
+vim.o.completeopt = 'menuone,noselect'
+
 
 -- indent guides 
 g.indent_guides_enable_on_vim_startup = 1
 g.indent_guides_start_level = 2
 
+-- lsp config
+
 -- general vim opts
+vim.o.hlsearch = false              -- Set highlight on search
+vim.o.breakindent = true            -- Enable break indent
+vim.o.mouse = 'a'                   -- enable mouse
+opt.undofile = true                 -- save undo history
+--Case insensitive searching UNLESS /C or capital in search
+vim.o.ignorecase = true
+vim.o.smartcase = true
+--Decrease update time
+vim.o.updatetime = 250
+vim.wo.signcolumn = 'yes'
+
+opt.undofile = true
 opt.autowrite = true                -- Auto save
 opt.number = true                   -- Show line numbers
 opt.relativenumber = true           -- Relative line numbers

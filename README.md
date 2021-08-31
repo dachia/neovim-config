@@ -56,7 +56,7 @@ Installation instructions on windows. Prerequisites:
 ## Other requirements
 
   1. Language servers, neovim/py/ts bindings, linters(older language server isnt working)
-   `npm i -g typescript typescript-language-server@0.5.4 pyright diagnostic-languageserver eslint eslint_d prettier neovim`
+   `npm i -g typescript typescript-language-server pyright diagnostic-languageserver eslint eslint_d prettier neovim`
 
 ## Install neovim plugins
 
