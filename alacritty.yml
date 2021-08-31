@@ -33,7 +33,7 @@ schemes:
       cyan:    '#93a1a1' # base1
       white:   '#fdf6e3' # base3
 
-colors: *solarized_dark
+# colors: *solarized_dark
 
 window:
   startup_mode: Maximized
@@ -47,7 +47,7 @@ key_bindings:
   - { key: N, mods: Control|Shift, action: SpawnNewInstance }
   - { key: W, mods: Control|Shift, action: Quit }
   - { key: V, mods: Control|Shift, mode: ~Search, action: ToggleViMode }
-
+  - { key: C, mods: Control|Shift, chars: "\x03" }
 # Configuration for Alacritty, the GPU enhanced terminal emulator.
 
 # Import additional configuration files
