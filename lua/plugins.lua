@@ -9,22 +9,19 @@ return require('packer').startup(function(use)
   
   -- languages (highlighting, autocomplete, indent)
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
+  use 'nvim-treesitter/nvim-treesitter-textobjects'  
   
   -- autocomplete
-  -- use 'nvim-lua/completion-nvim'
   use 'hrsh7th/nvim-cmp' -- Autocompletion plugin
   use 'hrsh7th/cmp-nvim-lsp' -- LSP source for nvim-cmp
   use 'saadparwaiz1/cmp_luasnip' -- Snippets source for nvim-cmp
   use 'L3MON4D3/LuaSnip' -- Snippets plugin
 
-  -- req for tree docs
-  use 'Olical/aniseed'
-  use 'nvim-treesitter/nvim-tree-docs'
-  use 'nvim-treesitter/nvim-treesitter-textobjects'  
+  -- docs
+  use { 'kkoomen/vim-doge', run = function() vim.fn["doge#install()"]() end }
 
   -- database
   use 'tpope/vim-dadbod'
-  use 'kristijanhusak/vim-dadbod-completion'
   use 'kristijanhusak/vim-dadbod-ui'
   
   -- UI for lsp

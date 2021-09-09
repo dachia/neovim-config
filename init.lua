@@ -17,14 +17,6 @@ require'nvim-treesitter.configs'.setup {
   highlight = {
     enable = true,
   },
-  tree_docs = {
-    enable = true,
-    spec_config = {
-      jsdoc = {
-        empty_line_after_description = true
-      }
-    }
-  },
   incremental_selection = {
     enable = true,
     keymaps = {
@@ -105,7 +97,7 @@ local on_attach = function(client, bufnr)
   buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
   
   -- Mappings.
-  local opts = { noremap=true, silent=true }
+  local opts = { noremap=true }
   
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
