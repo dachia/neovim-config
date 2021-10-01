@@ -257,56 +257,54 @@ require 'lspsaga'.init_lsp_saga {
   border_style = "round",
 }
 
--- snippets
-local luasnip = require 'luasnip'
-
 -- autocompletion
-
 local cmp = require 'cmp'
 cmp.setup {
-  snippet = {
-    expand = function(args)
-      require('luasnip').lsp_expand(args.body)
-    end,
-  },
+   snippet = {
+     expand = function(args)
+       require('luasnip').lsp_expand(args.body)
+     end,
+   },
   mapping = {
     -- ['<C-p>'] = cmp.mapping.select_prev_item(),
     -- ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-p>'] = cmp.mapping.complete(),
+    -- ['<C-Space>'] = cmp.mapping.complete(),    
+    -- ['<C-p>'] = cmp.mapping.complete(),
     -- ['<C-e>'] = cmp.mapping.close(),
     ['<CR>'] = cmp.mapping.confirm {
-      behavior = cmp.ConfirmBehavior.Replace,
+    --  behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
-    ['<Tab>'] = function(fallback)
-      if vim.fn.pumvisible() == 1 then
-        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<C-n>', true, true, true), 'n')
-      elseif luasnip.expand_or_jumpable() then
-        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-expand-or-jump', true, true, true), '')
-      else
-        fallback()
-      end
-    end,
-    ['<S-Tab>'] = function(fallback)
-      if vim.fn.pumvisible() == 1 then
-        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<C-p>', true, true, true), 'n')
-      elseif luasnip.jumpable(-1) then
-        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-jump-prev', true, true, true), '')
-      else
-        fallback()
-      end
-    end,
+    -- ['<Tab>'] = function(fallback)
+    --   if vim.fn.pumvisible() == 1 then
+    --     vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<C-n>', true, true, true), 'n')
+    --   elseif luasnip.expand_or_jumpable() then
+    --     vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-expand-or-jump', true, true, true), '')
+    --   else
+    --     fallback()
+    --   end
+    -- end,
+    -- ['<S-Tab>'] = function(fallback)
+    --   if vim.fn.pumvisible() == 1 then
+    --     vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<C-p>', true, true, true), 'n')
+    --   elseif luasnip.jumpable(-1) then
+    --     vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-jump-prev', true, true, true), '')
+    --   else
+    --     fallback()
+    --   end
+    -- end,
   },
   sources = {
-    { name = 'nvim_lsp' },
-    { name = 'luasnip' },
+    { name = 'nvim_lsp', max_item_count = 10 },
+    { name = 'luasnip', max_item_count = 3 },
+    { name = "buffer", max_item_count = 5 }
   },
 }
 
 -- Complete nvim config
-vim.o.completeopt = 'menuone,noselect'
+-- vim.o.completeopt = 'menuone,noselect'
 
 
 -- indent guides 
@@ -324,7 +322,7 @@ opt.undofile = true                 -- save undo history
 vim.o.ignorecase = true
 vim.o.smartcase = true
 --Decrease update time
-vim.o.updatetime = 250
+vim.o.updatetime = 50
 vim.wo.signcolumn = 'yes'
 
 opt.undofile = true
@@ -340,13 +338,13 @@ opt.tabstop = 2                     -- Number of spaces tabs count for
 opt.wrap = false                    -- Disable line wrap
 opt.termguicolors = true            -- True color support
 opt.list = true                     -- Show some invisible characters
-opt.wildignore = {'**/.git/**','**/venv/**','**/externals/**', '**/node_modules/**'} -- ignore
+opt.wildignore = {'**/.git/**','**/venv/**','**/externals/**', '**/node_modules/**', '**/dist/**'} -- ignore
 opt.cursorline = true               -- Cursor line
 opt.shiftwidth = 2                  -- Indetation after enter
 opt.expandtab = true                -- spaces instead of tabs
 opt.fileformat = 'unix'             -- file format relevant for line breaks on windows. Always use unix
 opt.clipboard = "unnamedplus"       -- windows clipboard
-opt.ttimeoutlen = 100               -- for leader key
+opt.ttimeoutlen = 50               -- for leader key
 
 -- MAPPINGS
 -- replace
