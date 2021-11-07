@@ -16,6 +16,7 @@ local is_win = fn.has('win32') == 1 or false
 require'nvim-treesitter.configs'.setup {
   highlight = {
     enable = true,
+    additional_vim_regex_highlighting = false
   },
   incremental_selection = {
     enable = true,
@@ -28,39 +29,6 @@ require'nvim-treesitter.configs'.setup {
   },
   indent = {
     enable = true
-  },
-  textobjects = {
-    select = {
-      enable = true,
-      lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-      keymaps = {
-        -- You can use the capture groups defined in textobjects.scm
-        ['af'] = '@function.outer',
-        ['if'] = '@function.inner',
-        ['ac'] = '@class.outer',
-        ['ic'] = '@class.inner',
-      },
-    },
-    move = {
-      enable = true,
-      set_jumps = true, -- whether to set jumps in the jumplist
-      goto_next_start = {
-        [']m'] = '@function.outer',
-        [']]'] = '@class.outer',
-      },
-      goto_next_end = {
-        [']M'] = '@function.outer',
-        [']['] = '@class.outer',
-      },
-      goto_previous_start = {
-        ['[m'] = '@function.outer',
-        ['[['] = '@class.outer',
-      },
-      goto_previous_end = {
-        ['[M'] = '@function.outer',
-        ['[]'] = '@class.outer',
-      },
-    },
   },
   ensure_installed = {
     "tsx",
@@ -85,252 +53,249 @@ local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
 parser_config.tsx.used_by = { "javascript", "typescript.tsx" }
 
 -- LSP
-local nvim_lsp = require'lspconfig'
+local lspconfig = require'lspconfig'
 
--- Use an on_attach function to only map the following keys
--- after the language server attaches to the current buffer
+local buf_map = function(bufnr, mode, lhs, rhs, opts)
+  vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, opts or {
+    silent = true,
+  })
+end
+
 local on_attach = function(client, bufnr)
-  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
-  
-  --Enable completion triggered by <c-x><c-o>
-  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
-  
-  -- Mappings.
-  local opts = { noremap=true }
-  
-  -- See `:help vim.lsp.*` for documentation on any of the below functions
-  buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-  buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
-  buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
-  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-  buf_set_keymap('n', '<LocalLeader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
-  buf_set_keymap('n', '<LocalLeader>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
-  buf_set_keymap('n', '<LocalLeader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
-  buf_set_keymap('n', '<LocalLeader>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
-  buf_set_keymap('n', '<LocalLeader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-  buf_set_keymap('n', '<LocalLeader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-  buf_set_keymap('n', '<LocalLeader>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-  buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-  buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
-  buf_set_keymap('n', '<LocalLeader>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
-  buf_set_keymap("n", "<LocalLeader>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+  vim.cmd("command! LspDef lua vim.lsp.buf.definition()")
+  vim.cmd("command! LspFormatting lua vim.lsp.buf.formatting()")
+  vim.cmd("command! LspCodeAction lua vim.lsp.buf.code_action()")
+  vim.cmd("command! LspHover lua vim.lsp.buf.hover()")
+  vim.cmd("command! LspRename lua vim.lsp.buf.rename()")
+  vim.cmd("command! LspRefs lua vim.lsp.buf.references()")
+  vim.cmd("command! LspTypeDef lua vim.lsp.buf.type_definition()")
+  vim.cmd("command! LspImplementation lua vim.lsp.buf.implementation()")
+  vim.cmd("command! LspDiagPrev lua vim.lsp.diagnostic.goto_prev()")
+  vim.cmd("command! LspDiagNext lua vim.lsp.diagnostic.goto_next()")
+  vim.cmd("command! LspDiagLine lua vim.lsp.diagnostic.show_line_diagnostics()")
+  vim.cmd("command! LspSignatureHelp lua vim.lsp.buf.signature_help()")
+  buf_map(bufnr, "n", "gd", ":LspDef<CR>")
+  buf_map(bufnr, "n", "<LocalLeader>rn", ":LspRename<CR>")
+  buf_map(bufnr, "n", "gy", ":LspTypeDef<CR>")
+  buf_map(bufnr, "n", "K", ":LspHover<CR>")
+  buf_map(bufnr, "n", "[a", ":LspDiagPrev<CR>")
+  buf_map(bufnr, "n", "]a", ":LspDiagNext<CR>")
+  buf_map(bufnr, "n", "<LocalLeader>ca", ":LspCodeAction<CR>")
+  buf_map(bufnr, "n", "<LocalLeader>e", ":LspDiagLine<CR>")
+  buf_map(bufnr, "i", "<C-k>", "<cmd> LspSignatureHelp<CR>")
 
-  client.CompletionItemKind = {
-    '', -- Text
-    '', -- Method
-    '', -- Function
-    '', -- Constructor
-    '', -- Field
-    '', -- Variable
-    '', -- Class
-    'ﰮ', -- Interface
-    '', -- Module
-    '', -- Property
-    '', -- Unit
-    '', -- Value
-    '', -- Enum
-    '', -- Keyword
-    '﬌', -- Snippet
-    '', -- Color
-    '', -- File
-    '', -- Reference
-    '', -- Folder
-    '', -- EnumMember
-    '', -- Constant
-    '', -- Struct
-    '', -- Event
-    'ﬦ', -- Operator
-    '', -- TypeParameter
-  }
-  -- Don't format on save
-  -- if client.resolved_capabilities.document_formatting then
-  --   vim.api.nvim_command [[augroup Format]]
-  --   vim.api.nvim_command [[autocmd! * <buffer>]]
-  --   vim.api.nvim_command [[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_seq_sync()]]
-  --   vim.api.nvim_command [[augroup END]]
-  -- end
-end
---
-
-local diagnostic_cmd
-if is_win then
-  diagnostic_cmd = {'C:/Program Files/nodejs/diagnostic-languageserver.cmd', '--stdio'}
-else
-  diagnostic_cmd = {'diagnostic-languageserver', '--stdio'}
+  if client.resolved_capabilities.document_formatting then
+    vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting()")
+  end
 end
 
--- for linters and such
-nvim_lsp.diagnosticls.setup {
-  on_attach = on_attach,
-  filetypes = { 'javascript', 'javascriptreact', 'json', 'typescript', 'typescriptreact', 'css', 'less', 'scss', 'markdown', 'pandoc' },
-  cmd = diagnostic_cmd,
-  init_options = {
-    linters = {
-      eslint = {
-        command = 'eslint_d',
-        rootPatterns = { '.git' },
-        debounce = 100,
-        args = { '--stdin', '--stdin-filename', '%filepath', '--format', 'json' },
-        sourceName = 'eslint_d',
-        parseJson = {
-          errorsRoot = '[0].messages',
-          line = 'line',
-          column = 'column',
-          endLine = 'endLine',
-          endColumn = 'endColumn',
-          message = '[eslint] ${message} [${ruleId}]',
-          security = 'severity'
-        },
-        securities = {
-          [2] = 'error',
-          [1] = 'warning'
-        }
-      },
-    },
-    filetypes = {
-      javascript = 'eslint',
-      javascriptreact = 'eslint',
-      typescript = 'eslint',
-      typescriptreact = 'eslint',
-    },
-    formatters = {
-      eslint_d = {
-        command = 'eslint_d',
-        args = { '--stdin', '--stdin-filename', '%filename', '--fix-to-stdout' },
-        rootPatterns = { '.git' },
-      },
-      prettier = {
-        command = 'prettier',
-        args = { '--stdin-filepath', '%filename' }
-      }
-    },
-    formatFiletypes = {
-      css = 'prettier',
-      javascript = 'eslint_d',
-      javascriptreact = 'eslint_d',
-      json = 'prettier',
-      scss = 'prettier',
-      less = 'prettier',
-      typescript = 'eslint_d',
-      typescriptreact = 'eslint_d',
-      json = 'prettier',
-      markdown = 'prettier',
-    }
-  }
+require'nvim-tree'.setup {
 }
 
--- Use a loop to conveniently call 'setup' on multiple servers and
--- map buffer local keybindings when the language server attaches
 -- nvim-cmp supports additional completion capabilities
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities) 
 
 local debounce_text_changes = 20
 
-nvim_lsp["pyright"].setup {
+lspconfig["pyright"].setup {
   on_attach = on_attach,
   capabilities = capabilities,
   flags = {
     debounce_text_changes = debounce_text_changes,
   }
-}
-nvim_lsp["tsserver"].setup {
-  on_attach = on_attach,
-  capabilities = capabilities,
-  flags = {
-    debounce_text_changes = debounce_text_changes,
-  }
-}
-  
-require 'lualine'.setup {
-  options = { theme = 'solarized_dark' }
 }
 
-require 'lspsaga'.init_lsp_saga {
-  error_sign = '',
-  warn_sign = '',
-  hint_sign = '',
-  infor_sign = '',
-  border_style = "round",
+lspconfig["tsserver"].setup {
+  on_attach = function(client, bufnr)
+    client.resolved_capabilities.document_formatting = false
+    client.resolved_capabilities.document_range_formatting = false
+    local ts_utils = require("nvim-lsp-ts-utils")
+    ts_utils.setup({
+      eslint_bin = "eslint_d",
+      eslint_enable_diagnostics = true,
+      eslint_enable_code_actions = true,
+      enable_formatting = true,
+      formatter = "prettier",
+      enable_import_on_completion = true
+    })
+    ts_utils.setup_client(client)
+    buf_map(bufnr, "n", "gs", ":TSLspOrganize<CR>")
+    buf_map(bufnr, "n", "gi", ":TSLspRenameFile<CR>")
+    buf_map(bufnr, "n", "go", ":TSLspImportAll<CR>")
+    on_attach(client, bufnr)
+  end,
+  init_options = {
+    hostInfo = "neovim",
+    maxTsServerMemory = 2048
+  },
+  capabilities = capabilities,
+  flags = {
+    debounce_text_changes = debounce_text_changes,
+  }
+}
+
+require("null-ls").config({})
+lspconfig["null-ls"].setup({ on_attach = on_attach })  
+
+require 'lualine'.setup {
+  options = { theme = 'solarized_dark' }
 }
 
 -- autocompletion
 local cmp = require 'cmp'
 cmp.setup {
-   snippet = {
-     expand = function(args)
-       require('luasnip').lsp_expand(args.body)
-     end,
-   },
+  snippet = {
+    expand = function(args)
+      require('luasnip').lsp_expand(args.body)
+    end,
+  },
   mapping = {
-    -- ['<C-p>'] = cmp.mapping.select_prev_item(),
-    -- ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    -- ['<C-Space>'] = cmp.mapping.complete(),    
-    -- ['<C-p>'] = cmp.mapping.complete(),
-    -- ['<C-e>'] = cmp.mapping.close(),
+    ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
     ['<CR>'] = cmp.mapping.confirm {
-    --  behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
-    -- ['<Tab>'] = function(fallback)
-    --   if vim.fn.pumvisible() == 1 then
-    --     vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<C-n>', true, true, true), 'n')
-    --   elseif luasnip.expand_or_jumpable() then
-    --     vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-expand-or-jump', true, true, true), '')
-    --   else
-    --     fallback()
-    --   end
-    -- end,
-    -- ['<S-Tab>'] = function(fallback)
-    --   if vim.fn.pumvisible() == 1 then
-    --     vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<C-p>', true, true, true), 'n')
-    --   elseif luasnip.jumpable(-1) then
-    --     vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-jump-prev', true, true, true), '')
-    --   else
-    --     fallback()
-    --   end
-    -- end,
   },
   sources = {
-    { name = 'nvim_lsp', max_item_count = 10 },
-    { name = 'luasnip', max_item_count = 3 },
-    { name = "buffer", max_item_count = 5 }
+    { name = 'nvim_lsp', max_item_count = 20 },
+    { name = "buffer", max_item_count = 2 },
+    { name = 'luasnip', max_item_count = 1 }
   },
+  completion = {
+    completeopt = 'menu,menuone,noinsert',
+    keyword_length = 0
+  }
 }
+--
+-- Theme
+require'catppuccino'.setup(
+  {
+		colorscheme = "dark_catppuccino",
+		transparency = false,
+		term_colors = false,
+		styles = {
+			comments = "italic",
+			functions = "italic",
+			keywords = "italic",
+			strings = "NONE",
+			variables = "NONE",
+		},
+		integrations = {
+			treesitter = true,
+			native_lsp = {
+				enabled = true,
+				virtual_text = {
+					errors = "italic",
+					hints = "italic",
+					warnings = "italic",
+					information = "italic",
+				},
+				underlines = {
+					errors = "underline",
+					hints = "underline",
+					warnings = "underline",
+					information = "underline",
+				}
+			},
+			lsp_trouble = false,
+			lsp_saga = false,
+			gitgutter = false,
+			gitsigns = false,
+			telescope = false,
+			nvimtree = {
+				enabled = true,
+				show_root = true,
+			},
+			which_key = false,
+			indent_blankline = {
+				enabled = true,
+				colored_indent_levels = true,
+			},
+			dashboard = false,
+			neogit = false,
+			vim_sneak = false,
+			fern = false,
+			barbar = false,
+			bufferline = false,
+			markdown = false,
+			lightspeed = false,
+			ts_rainbow = false,
+			hop = false,
+		}
+	}
+)
+vim.cmd[[colorscheme catppuccino]]
 
--- Complete nvim config
--- vim.o.completeopt = 'menuone,noselect'
-
-
--- indent guides 
-g.indent_guides_enable_on_vim_startup = 1
-g.indent_guides_start_level = 2
-
--- lsp config
-
+require'nvim-tree'.setup {
+  disable_netrw       = true,
+  hijack_netrw        = true,
+  open_on_setup       = false,
+  ignore_ft_on_setup  = {},
+  auto_close          = false,
+  open_on_tab         = false,
+  hijack_cursor       = false,
+  update_cwd          = false,
+  update_to_buf_dir   = {
+    enable = true,
+    auto_open = true,
+  },
+  diagnostics = {
+    enable = false,
+    icons = {
+      hint = "",
+      info = "",
+      warning = "",
+      error = "",
+    }
+  },
+  update_focused_file = {
+    enable      = false,
+    update_cwd  = false,
+    ignore_list = {}
+  },
+  system_open = {
+    cmd  = nil,
+    args = {}
+  },
+  filters = {
+    dotfiles = false,
+    custom = {}
+  },
+  view = {
+    width = 100,
+    hide_root_folder = false,
+    side = 'left',
+    auto_resize = false,
+    mappings = {
+      custom_only = false,
+      list = {}
+    }
+  }
+}
 -- general vim opts
 vim.o.hlsearch = false              -- Set highlight on search
-vim.o.breakindent = true            -- Enable break indent
+
+-- idennt
+vim.o.breakindent = true -- Enable break indent
+opt.smartindent = true -- Insert indents automatically
+opt.autoindent = true
+
 vim.o.mouse = 'a'                   -- enable mouse
 opt.undofile = true                 -- save undo history
 --Case insensitive searching UNLESS /C or capital in search
-vim.o.ignorecase = true
-vim.o.smartcase = true
+vim.o.ignorecase = false
 --Decrease update time
 vim.o.updatetime = 50
 vim.wo.signcolumn = 'yes'
 
+opt.syntax = 'off'                  -- disable higlight, tree sitter does that
 opt.undofile = true
 opt.autowrite = true                -- Auto save
 opt.number = true                   -- Show line numbers
 opt.relativenumber = true           -- Relative line numbers
 opt.smartcase = true                -- Do not ignore case with capitals
-opt.smartindent = true              -- Insert indents automatically
 opt.splitbelow = true               -- Put new windows below current
 opt.splitright = true               -- Put new windows right of current
 opt.encoding = 'utf-8'              -- Encoding
@@ -346,9 +311,10 @@ opt.fileformat = 'unix'             -- file format relevant for line breaks on w
 opt.clipboard = "unnamedplus"       -- windows clipboard
 opt.ttimeoutlen = 50               -- for leader key
 
+
 -- MAPPINGS
 -- replace
-map('n', '<Leader>r', 'yiw:%s/\\<<C-r><C-w>\\>//gc<left><left><left>')
+map('n', '<Leader>r', 'yiw:%s/<C-r><C-w>//gc<left><left><left>')
 -- Tabs
 map('n', '<C-t>', ':tabnew<CR>')
 
@@ -359,11 +325,9 @@ else
   map('n', '<A-Left>', ':tabprevious<CR>')
   map('n', '<A-Right>', ':tabnext<CR>')
 end
-
--- DB maps
-map('n', '<C-b>', ':DBUI<CR>')
 -- File tree maps
-map('n', '<C-n>', ':NERDTreeToggle<CR>')
+map('n', '<C-n>', ':NvimTreeFindFileToggle<CR>')
+-- map('n', '<C-n>', ':NvimTreeToggle<CR>')
 -- Fuzzy search maps
 map('n', '<C-p>', ':FZF<CR>')
 map('n', '<C-g>', ':Rg<CR>')

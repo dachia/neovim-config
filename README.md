@@ -56,8 +56,11 @@ Installation instructions on windows. Prerequisites:
 ## Other requirements
 
   1. Language servers, neovim/py/ts bindings, linters(older language server isnt working)
-   `npm i -g typescript typescript-language-server pyright diagnostic-languageserver eslint eslint_d prettier neovim`
+   `npm i -g typescript typescript-language-server pyright eslint eslint_d prettier neovim`
+  
+  2. Fire code mono font(only mono because of alacritty) https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode
 
 ## Install neovim plugins
 
   1. `:PackerInstall`
+  2. `call doge#install()`
