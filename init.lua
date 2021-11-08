@@ -274,6 +274,15 @@ require'nvim-tree'.setup {
     }
   }
 }
+
+require "lsp_signature".setup{
+  bind = true,
+  hint_enable = false,
+  handler_opts = {border = "single"},
+  always_trigger = true,
+  extra_trigger_chars = {"(", ","},
+}
+
 -- general vim opts
 vim.o.hlsearch = false              -- Set highlight on search
 

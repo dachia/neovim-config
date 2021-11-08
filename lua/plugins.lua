@@ -21,8 +21,11 @@ return require('packer').startup(function(use)
   use 'saadparwaiz1/cmp_luasnip' -- Snippets source for nvim-cmp
   use 'L3MON4D3/LuaSnip' -- Snippets plugin
 
+  -- signature help
+  use "ray-x/lsp_signature.nvim"
+
   -- tree docs
-  use { 'kkoomen/vim-doge', run = function() vim.fn["doge#install()"]() end } 
+  use { 'kkoomen/vim-doge' } 
 
   
   -- Fuzzy search
