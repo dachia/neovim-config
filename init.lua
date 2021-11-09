@@ -159,13 +159,13 @@ cmp.setup {
     },
   },
   sources = {
-    { name = 'nvim_lsp', max_item_count = 20 },
-    { name = "buffer", max_item_count = 2 },
+    { name = 'nvim_lsp', max_item_count = 10 },
+    { name = "buffer", max_item_count = 5 },
     { name = 'luasnip', max_item_count = 1 }
   },
   completion = {
-    completeopt = 'menu,menuone,noinsert',
-    keyword_length = 0
+    -- completeopt = 'menu,menuone,noinsert',
+    keyword_length = 1
   }
 }
 --
@@ -326,6 +326,9 @@ opt.ttimeoutlen = 50               -- for leader key
 map('n', '<Leader>r', 'yiw:%s/<C-r><C-w>//gc<left><left><left>')
 -- Tabs
 map('n', '<C-t>', ':tabnew<CR>')
+
+-- DB
+map('n', '<C-b>', ':DBUI<CR>')
 
 if is_win then
   map('n', '<C-Left>', ':tabprevious<CR>')

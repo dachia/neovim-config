@@ -16,6 +16,7 @@ return require('packer').startup(function(use)
   use "jose-elias-alvarez/nvim-lsp-ts-utils"
 
   -- autocomplete
+  use 'hrsh7th/cmp-buffer' -- buffer autocmp
   use 'hrsh7th/nvim-cmp' -- Autocompletion plugin
   use 'hrsh7th/cmp-nvim-lsp' -- LSP source for nvim-cmp
   use 'saadparwaiz1/cmp_luasnip' -- Snippets source for nvim-cmp
@@ -27,7 +28,9 @@ return require('packer').startup(function(use)
   -- tree docs
   use { 'kkoomen/vim-doge' } 
 
-  
+  -- DB
+  use { 'tpope/vim-dadbod' }
+  use { 'kristijanhusak/vim-dadbod-ui' }
   -- Fuzzy search
   use { 'junegunn/fzf', run = function() vim.fn['fzf#install'](0) end }
   use 'junegunn/fzf.vim'
