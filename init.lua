@@ -279,8 +279,8 @@ require "lsp_signature".setup{
   bind = true,
   hint_enable = false,
   handler_opts = {border = "single"},
-  always_trigger = true,
-  extra_trigger_chars = {"(", ","},
+  toggle_key = "<C-s>"
+  -- extra_trigger_chars = {"(", ","},
 }
 
 -- general vim opts
