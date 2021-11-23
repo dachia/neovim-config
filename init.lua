@@ -139,7 +139,7 @@ require("null-ls").config({})
 lspconfig["null-ls"].setup({ on_attach = on_attach })  
 
 require 'lualine'.setup {
-  options = { theme = 'solarized_dark' }
+  options = { theme = "catppuccin" }
 }
 
 -- autocompletion
@@ -170,7 +170,7 @@ cmp.setup {
 }
 --
 -- Theme
-require'catppuccino'.setup(
+require'catppuccin'.setup(
   {
 		colorscheme = "dark_catppuccino",
 		transparency = false,
@@ -226,7 +226,7 @@ require'catppuccino'.setup(
 		}
 	}
 )
-vim.cmd[[colorscheme catppuccino]]
+vim.cmd[[colorscheme catppuccin]]
 
 require'nvim-tree'.setup {
   disable_netrw       = true,
