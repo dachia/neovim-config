@@ -85,7 +85,7 @@ local on_attach = function(client, bufnr)
   buf_map(bufnr, "i", "<C-k>", "<cmd> LspSignatureHelp<CR>")
 
   if client.resolved_capabilities.document_formatting then
-    vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting()")
+    vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()")
   end
 end
 
@@ -135,8 +135,15 @@ lspconfig["tsserver"].setup {
   }
 }
 
-require("null-ls").config({})
-lspconfig["null-ls"].setup({ on_attach = on_attach })  
+local null_ls = require("null-ls")
+null_ls.setup({
+    sources = {
+        null_ls.builtins.diagnostics.eslint,
+        null_ls.builtins.code_actions.eslint,
+        null_ls.builtins.formatting.prettier
+    },
+})
+
 
 require 'lualine'.setup {
   options = { theme = "catppuccin" }
@@ -168,6 +175,42 @@ cmp.setup {
     keyword_length = 1
   }
 }
+require'nvim-tree'.setup {
+  disable_netrw       = true,
+  hijack_netrw        = true,
+  update_to_buf_dir   = {
+    enable = true,
+    auto_open = false,
+  },
+  diagnostics = {
+    enable = true,
+    icons = {
+      hint = "",
+      info = "",
+      warning = "",
+      error = "",
+    }
+  },
+  update_focused_file = {
+    enable      = false,
+    update_cwd  = false,
+    ignore_list = {}
+  },
+  system_open = {
+    cmd  = nil,
+    args = {}
+  },
+  filters = {
+    dotfiles = false,
+    custom = {}
+  },
+  view = {
+    width = 60,
+    side = 'left',
+    auto_resize = true,
+  }
+}
+
 --
 -- Theme
 require'catppuccin'.setup(
@@ -227,53 +270,6 @@ require'catppuccin'.setup(
 	}
 )
 vim.cmd[[colorscheme catppuccin]]
-
-require'nvim-tree'.setup {
-  disable_netrw       = true,
-  hijack_netrw        = true,
-  open_on_setup       = false,
-  ignore_ft_on_setup  = {},
-  auto_close          = false,
-  open_on_tab         = false,
-  hijack_cursor       = false,
-  update_cwd          = false,
-  update_to_buf_dir   = {
-    enable = true,
-    auto_open = true,
-  },
-  diagnostics = {
-    enable = false,
-    icons = {
-      hint = "",
-      info = "",
-      warning = "",
-      error = "",
-    }
-  },
-  update_focused_file = {
-    enable      = false,
-    update_cwd  = false,
-    ignore_list = {}
-  },
-  system_open = {
-    cmd  = nil,
-    args = {}
-  },
-  filters = {
-    dotfiles = false,
-    custom = {}
-  },
-  view = {
-    width = 100,
-    hide_root_folder = false,
-    side = 'left',
-    auto_resize = false,
-    mappings = {
-      custom_only = false,
-      list = {}
-    }
-  }
-}
 
 require "lsp_signature".setup{
   bind = true,
