@@ -11,6 +11,7 @@ g.maplocalleader = g.mapleader  -- map local leader key
 require("plugins")
 
 local is_win = fn.has('win32') == 1 or false
+local use_coc = true
 
 -- Tree sitter
 require'nvim-treesitter.configs'.setup {
@@ -49,132 +50,146 @@ require'nvim-treesitter.configs'.setup {
     "python"
   }
 }
-local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
-parser_config.tsx.used_by = { "javascript", "typescript.tsx" }
-
--- LSP
-local lspconfig = require'lspconfig'
-
 local buf_map = function(bufnr, mode, lhs, rhs, opts)
   vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, opts or {
     silent = true,
   })
 end
+  
 
-local on_attach = function(client, bufnr)
-  vim.cmd("command! LspDef lua vim.lsp.buf.definition()")
-  vim.cmd("command! LspFormatting lua vim.lsp.buf.formatting()")
-  vim.cmd("command! LspCodeAction lua vim.lsp.buf.code_action()")
-  vim.cmd("command! LspHover lua vim.lsp.buf.hover()")
-  vim.cmd("command! LspRename lua vim.lsp.buf.rename()")
-  vim.cmd("command! LspRefs lua vim.lsp.buf.references()")
-  vim.cmd("command! LspTypeDef lua vim.lsp.buf.type_definition()")
-  vim.cmd("command! LspImplementation lua vim.lsp.buf.implementation()")
-  vim.cmd("command! LspDiagPrev lua vim.lsp.diagnostic.goto_prev()")
-  vim.cmd("command! LspDiagNext lua vim.lsp.diagnostic.goto_next()")
-  vim.cmd("command! LspDiagLine lua vim.lsp.diagnostic.show_line_diagnostics()")
-  vim.cmd("command! LspSignatureHelp lua vim.lsp.buf.signature_help()")
-  buf_map(bufnr, "n", "gd", ":LspDef<CR>")
-  buf_map(bufnr, "n", "<LocalLeader>rn", ":LspRename<CR>")
-  buf_map(bufnr, "n", "gy", ":LspTypeDef<CR>")
-  buf_map(bufnr, "n", "K", ":LspHover<CR>")
-  buf_map(bufnr, "n", "[a", ":LspDiagPrev<CR>")
-  buf_map(bufnr, "n", "]a", ":LspDiagNext<CR>")
-  buf_map(bufnr, "n", "<LocalLeader>ca", ":LspCodeAction<CR>")
-  buf_map(bufnr, "n", "<LocalLeader>e", ":LspDiagLine<CR>")
-  buf_map(bufnr, "i", "<C-k>", "<cmd> LspSignatureHelp<CR>")
-
-  if client.resolved_capabilities.document_formatting then
-    vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()")
+if use_coc then
+  g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-git', }
+  map('n', '<Leader>rn', '<Plug>(coc-rename)')
+  map('n', '<Leader>ac', '<Plug>(coc-codeaction)')
+else
+  -- LSP
+  local lspconfig = require'lspconfig'
+  
+  local on_attach = function(client, bufnr)
+    vim.cmd("command! LspDef lua vim.lsp.buf.definition()")
+    vim.cmd("command! LspFormatting lua vim.lsp.buf.formatting()")
+    vim.cmd("command! LspCodeAction lua vim.lsp.buf.code_action()")
+    vim.cmd("command! LspHover lua vim.lsp.buf.hover()")
+    vim.cmd("command! LspRename lua vim.lsp.buf.rename()")
+    vim.cmd("command! LspRefs lua vim.lsp.buf.references()")
+    vim.cmd("command! LspTypeDef lua vim.lsp.buf.type_definition()")
+    vim.cmd("command! LspImplementation lua vim.lsp.buf.implementation()")
+    vim.cmd("command! LspDiagPrev lua vim.lsp.diagnostic.goto_prev()")
+    vim.cmd("command! LspDiagNext lua vim.lsp.diagnostic.goto_next()")
+    vim.cmd("command! LspDiagLine lua vim.lsp.diagnostic.show_line_diagnostics()")
+    vim.cmd("command! LspSignatureHelp lua vim.lsp.buf.signature_help()")
+    buf_map(bufnr, "n", "gd", ":LspDef<CR>")
+    buf_map(bufnr, "n", "<LocalLeader>rn", ":LspRename<CR>")
+    buf_map(bufnr, "n", "gy", ":LspTypeDef<CR>")
+    buf_map(bufnr, "n", "K", ":LspHover<CR>")
+    buf_map(bufnr, "n", "[a", ":LspDiagPrev<CR>")
+    buf_map(bufnr, "n", "]a", ":LspDiagNext<CR>")
+    buf_map(bufnr, "n", "<LocalLeader>ca", ":LspCodeAction<CR>")
+    buf_map(bufnr, "n", "<LocalLeader>e", ":LspDiagLine<CR>")
+    buf_map(bufnr, "i", "<C-k>", "<cmd> LspSignatureHelp<CR>")
+  
+    if client.resolved_capabilities.document_formatting then
+      vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()")
+    end
   end
-end
-
-require'nvim-tree'.setup {
-}
-
--- nvim-cmp supports additional completion capabilities
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities) 
-
-local debounce_text_changes = 20
-
-lspconfig["pyright"].setup {
-  on_attach = on_attach,
-  capabilities = capabilities,
-  flags = {
-    debounce_text_changes = debounce_text_changes,
+  
+  -- nvim-cmp supports additional completion capabilities
+  local capabilities = vim.lsp.protocol.make_client_capabilities()
+  capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities) 
+  
+  local debounce_text_changes = 20
+  
+  lspconfig["pyright"].setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+    flags = {
+      debounce_text_changes = debounce_text_changes,
+    }
   }
-}
-
-lspconfig["tsserver"].setup {
-  on_attach = function(client, bufnr)
-    client.resolved_capabilities.document_formatting = false
-    client.resolved_capabilities.document_range_formatting = false
-    local ts_utils = require("nvim-lsp-ts-utils")
-    ts_utils.setup({
-      eslint_bin = "eslint_d",
-      eslint_enable_diagnostics = true,
-      eslint_enable_code_actions = true,
-      enable_formatting = true,
-      formatter = "prettier",
-      enable_import_on_completion = true
-    })
-    ts_utils.setup_client(client)
-    buf_map(bufnr, "n", "gs", ":TSLspOrganize<CR>")
-    buf_map(bufnr, "n", "gi", ":TSLspRenameFile<CR>")
-    buf_map(bufnr, "n", "go", ":TSLspImportAll<CR>")
-    on_attach(client, bufnr)
-  end,
-  init_options = {
-    hostInfo = "neovim",
-    maxTsServerMemory = 2048
-  },
-  capabilities = capabilities,
-  flags = {
-    debounce_text_changes = debounce_text_changes,
-  }
-}
-
-local null_ls = require("null-ls")
-null_ls.setup({
-    sources = {
-        null_ls.builtins.diagnostics.eslint,
-        null_ls.builtins.code_actions.eslint,
-        null_ls.builtins.formatting.prettier
+  
+  lspconfig["tsserver"].setup {
+    on_attach = function(client, bufnr)
+      client.resolved_capabilities.document_formatting = false
+      client.resolved_capabilities.document_range_formatting = false
+      local ts_utils = require("nvim-lsp-ts-utils")
+      ts_utils.setup({
+        eslint_bin = "eslint_d",
+        eslint_enable_diagnostics = true,
+        eslint_enable_code_actions = true,
+        enable_formatting = true,
+        formatter = "prettier",
+        enable_import_on_completion = true
+      })
+      ts_utils.setup_client(client)
+      buf_map(bufnr, "n", "gs", ":TSLspOrganize<CR>")
+      buf_map(bufnr, "n", "gi", ":TSLspRenameFile<CR>")
+      buf_map(bufnr, "n", "go", ":TSLspImportAll<CR>")
+      on_attach(client, bufnr)
+    end,
+  
+    init_options = {
+      hostInfo = "neovim",
+      disableAutomaticTypingAcquisition = true,
     },
-})
+    capabilities = capabilities,
+    diagnosticsDelay = "500ms",
+    experimentalWatchedFileDelay = "1000ms",
+    flags = {
+      allow_incremental_sync = true,
+      debounce_text_changes = debounce_text_changes,
+    }
+  }
+  
+  local null_ls = require("null-ls")
+  null_ls.setup({
+      sources = {
+          null_ls.builtins.diagnostics.eslint,
+          null_ls.builtins.code_actions.eslint,
+          null_ls.builtins.formatting.prettier
+      },
+      on_attach = on_attach
+  })
 
+  require "lsp_signature".setup{
+    bind = true,
+    hint_enable = false,
+    handler_opts = {border = "single"},
+    toggle_key = "<C-s>"
+    -- extra_trigger_chars = {"(", ","},
+  }
+  -- autocompletion
+  local cmp = require 'cmp'
+  cmp.setup {
+    snippet = {
+      expand = function(args)
+        require('luasnip').lsp_expand(args.body)
+      end,
+    },
+    mapping = {
+      ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+      ['<C-f>'] = cmp.mapping.scroll_docs(4),
+      ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
+      ['<CR>'] = cmp.mapping.confirm {
+        select = true,
+      },
+    },
+    sources = {
+      { name = 'nvim_lsp', max_item_count = 5 },
+      { name = "buffer", max_item_count = 5 },
+      { name = 'luasnip', max_item_count = 1 }
+    },
+    documentation = false,
+    completion = {
+      completeopt = 'menu,menuone,noinsert',
+      keyword_length = 3
+    }
+  }
+end
 
 require 'lualine'.setup {
   options = { theme = "catppuccin" }
 }
 
--- autocompletion
-local cmp = require 'cmp'
-cmp.setup {
-  snippet = {
-    expand = function(args)
-      require('luasnip').lsp_expand(args.body)
-    end,
-  },
-  mapping = {
-    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
-    ['<CR>'] = cmp.mapping.confirm {
-      select = true,
-    },
-  },
-  sources = {
-    { name = 'nvim_lsp', max_item_count = 10 },
-    { name = "buffer", max_item_count = 5 },
-    { name = 'luasnip', max_item_count = 1 }
-  },
-  completion = {
-    -- completeopt = 'menu,menuone,noinsert',
-    keyword_length = 1
-  }
-}
 require'nvim-tree'.setup {
   disable_netrw       = true,
   hijack_netrw        = true,
@@ -207,7 +222,7 @@ require'nvim-tree'.setup {
   view = {
     width = 60,
     side = 'left',
-    auto_resize = true,
+    auto_resize = false,
   }
 }
 
@@ -270,17 +285,11 @@ require'catppuccin'.setup(
 	}
 )
 vim.cmd[[colorscheme catppuccin]]
-
-require "lsp_signature".setup{
-  bind = true,
-  hint_enable = false,
-  handler_opts = {border = "single"},
-  toggle_key = "<C-s>"
-  -- extra_trigger_chars = {"(", ","},
-}
-
 -- general vim opts
 vim.o.hlsearch = false              -- Set highlight on search
+
+vim.opt.shortmess = vim.opt.shortmess + { I = true }
+vim.opt.cmdheight = 2
 
 -- idennt
 vim.o.breakindent = true -- Enable break indent
