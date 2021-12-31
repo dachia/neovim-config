@@ -13,43 +13,6 @@ require("plugins")
 local is_win = fn.has('win32') == 1 or false
 local use_coc = true
 
--- Tree sitter
-require'nvim-treesitter.configs'.setup {
-  highlight = {
-    enable = true,
-    additional_vim_regex_highlighting = false
-  },
-  incremental_selection = {
-    enable = true,
-    keymaps = {
-      init_selection = "gnn",
-      node_incremental = "grn",
-      scope_incremental = "grc",
-      node_decremental = "grm",
-    },
-  },
-  indent = {
-    enable = true
-  },
-  ensure_installed = {
-    "tsx",
-    "json",
-    "jsdoc",
-    "yaml",
-    "html",
-    "css",
-    "python",
-    "javascript",
-    "comment",
-    "dockerfile",
-    "lua",
-    "regex",
-    "toml",
-    "typescript",
-    "yaml",
-    "python"
-  }
-}
 local buf_map = function(bufnr, mode, lhs, rhs, opts)
   vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, opts or {
     silent = true,
@@ -58,9 +21,71 @@ end
   
 
 if use_coc then
-  g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-git', }
-  map('n', '<Leader>rn', '<Plug>(coc-rename)')
-  map('n', '<Leader>ac', '<Plug>(coc-codeaction)')
+  g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-git', 'coc-prettier', 'coc-eslint' }
+  -- Map function is not working. using vim script
+  -- map('n', '<Leader>rn', '<Plug>(coc-rename)')
+  -- map('n', '<Leader>ac', '<Plug>(coc-codeaction)')
+  -- map('n', '<leader>cl', '<Plug>(coc-codelens-action)')
+  -- Diagnostics
+  -- map('n', '[g', '<Plug>(coc-diagnostic-prev)')
+  -- map('n', ']g', '<Plug>(coc-diagnostic-next)')
+  -- Definitions
+  -- map('n', 'gd', '<Plug>(coc-definition)')
+  -- map('n', 'gy', '<Plug>(coc-type-definition)')
+  -- map('n', 'gi', '<Plug>(coc-implementation)')
+  -- map('n', 'gr', '<Plug>(coc-references)')
+  -- -- Coc-format
+  vim.cmd [[
+
+    " Use <c-space> to trigger completion.
+    inoremap <silent><expr> <c-space> coc#refresh()
+
+    function! s:show_documentation()
+      if (index(['vim','help'], &filetype) >= 0)
+        execute 'h '.expand('<cword>')
+      elseif (coc#rpc#ready())
+        call CocActionAsync('doHover')
+      else
+        execute '!' . &keywordprg . " " . expand('<cword>')
+      endif
+    endfunction
+
+    " Use K to show documentation in preview window.
+    nnoremap <silent> <Leader>e :call <SID>show_documentation()<CR>
+
+
+    " GoTo code navigation.
+    nmap <silent> gd <Plug>(coc-definition)
+    nmap <silent> gy <Plug>(coc-type-definition)
+    nmap <silent> gi <Plug>(coc-implementation)
+    nmap <silent> gr <Plug>(coc-references)
+
+    " Diagnostics
+    nmap <silent> [g <Plug>(coc-diagnostic-prev)
+    nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+    command! -nargs=0 Prettier :CocCommand prettier.formatFile
+
+    " Highlight the symbol and its references when holding the cursor.
+    autocmd CursorHold * silent call CocActionAsync('highlight')
+
+    " Symbol renaming.
+    nmap <leader>rn <Plug>(coc-rename)
+
+    " Remap keys for applying codeAction to the current buffer.
+    nmap <leader>ac  <Plug>(coc-codeaction)
+
+    " Add `:OR` command for organize imports of the current buffer.
+    command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.organizeImport')
+
+    " Autoimport on completion
+    noremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+
+    " Fix current line
+    nmap <leader>qf  <Plug>(coc-fix-current)
+  ]]
+  map('n', '<leader>f', ':Prettier<CR>')
+  map('n', '<leader>i', ':OR<CR>')
 else
   -- LSP
   local lspconfig = require'lspconfig'
@@ -186,6 +211,44 @@ else
   }
 end
 
+-- Tree sitter
+require'nvim-treesitter.configs'.setup {
+  highlight = {
+    enable = true,
+    additional_vim_regex_highlighting = false
+  },
+  incremental_selection = {
+    enable = true,
+    keymaps = {
+      init_selection = "gnn",
+      node_incremental = "grn",
+      scope_incremental = "grc",
+      node_decremental = "grm",
+    },
+  },
+  indent = {
+    enable = true
+  },
+  ensure_installed = {
+    "tsx",
+    "json",
+    "jsdoc",
+    "yaml",
+    "html",
+    "css",
+    "python",
+    "javascript",
+    "comment",
+    "dockerfile",
+    "lua",
+    "regex",
+    "toml",
+    "typescript",
+    "yaml",
+    "python"
+  }
+}
+
 require 'lualine'.setup {
   options = { theme = "catppuccin" }
 }
@@ -207,7 +270,7 @@ require'nvim-tree'.setup {
     }
   },
   update_focused_file = {
-    enable      = false,
+    enable      = true,
     update_cwd  = false,
     ignore_list = {}
   },
@@ -220,9 +283,9 @@ require'nvim-tree'.setup {
     custom = {}
   },
   view = {
-    width = 60,
     side = 'left',
-    auto_resize = false,
+    auto_resize = true,
+    width = 80,
   }
 }
 
