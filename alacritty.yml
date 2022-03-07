@@ -123,11 +123,14 @@ colors: *catpuccin
 window:
   startup_mode: Maximized
 
+shell:
+  program: 'C:\Windows\system32\wsl.exe'
+
 font:
   normal:
     family: "FiraCode NF"
 
-working_directory: 'C:\Users\artur\projects'
+# working_directory: 'C:\Users\artur\projects'
 
 selection:
   save_to_clipboard: true
@@ -135,6 +138,5 @@ selection:
 key_bindings:
   - { key: N, mods: Control|Shift, action: SpawnNewInstance }
   - { key: W, mods: Control|Shift, action: Quit }
-  - { key: V, mods: Control|Shift, mode: ~Search, action: ToggleViMode }
   - { key: C, mods: Control, chars: "\x03" }
   - { key: Space, mods: Control, chars: "\x00" }
