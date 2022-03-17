@@ -6,6 +6,12 @@ Requiremens:
 
   1. node.js and npm
 
+## Ubuntu WSL
+
+### Clipboard
+
+ - https://github.com/neovim/neovim/wiki/FAQ#how-to-use-the-windows-clipboard-from-wsl
+
 ## Windows
 
 Installation instructions on windows. Prerequisites:
