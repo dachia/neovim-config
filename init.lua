@@ -11,7 +11,7 @@ g.maplocalleader = g.mapleader  -- map local leader key
 require("plugins")
 
 local is_win = fn.has('win32') == 1 or false
-local use_coc = true
+local use_coc = false
 
 local buf_map = function(bufnr, mode, lhs, rhs, opts)
   vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, opts or {
@@ -197,18 +197,19 @@ else
       ['<CR>'] = cmp.mapping.confirm {
         select = true,
       },
+      ['<Down>'] = cmp.mapping(cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }), {'i'}),
+      ['<Up>'] = cmp.mapping(cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }), {'i'}),
     },
     sources = {
       { name = 'nvim_lsp', max_item_count = 5 },
       { name = "buffer", max_item_count = 5 },
       { name = 'luasnip', max_item_count = 1 }
     },
-    documentation = false,
     completion = {
-      completeopt = 'menu,menuone,noinsert',
       keyword_length = 3
     }
   }
+  vim.opt.completeopt = {'menu', 'menuone', 'noselect'}
 end
 
 -- Tree sitter
@@ -285,7 +286,7 @@ require'nvim-tree'.setup {
   view = {
     side = 'left',
     auto_resize = true,
-    width = 80,
+    width = 50,
   }
 }
 
@@ -396,7 +397,7 @@ map('n', '<Leader>r', 'yiw:%s/<C-r><C-w>//gc<left><left><left>')
 map('n', '<C-t>', ':tabnew<CR>')
 
 -- DB
-map('n', '<C-b>', ':DBUI<CR>')
+-- map('n', '<C-b>', ':DBUI<CR>')
 
 if is_win then
   map('n', '<C-Left>', ':tabprevious<CR>')

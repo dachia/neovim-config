@@ -24,7 +24,7 @@ return require('packer').startup(function(use)
   use "ray-x/lsp_signature.nvim"
 
   -- CoC
-  use { 'neoclide/coc.nvim', branch = 'master', run = 'npm i'}
+  -- use { 'neoclide/coc.nvim', branch = 'master', run = 'npm i'}
   -- tree docs
   use { 'kkoomen/vim-doge' } 
 
