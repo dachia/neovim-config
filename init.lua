@@ -102,43 +102,19 @@ require 'lualine'.setup {
   options = { theme = "catppuccin" }
 }
 
-require'nvim-tree'.setup {
-  disable_netrw       = true,
-  hijack_netrw        = true,
-  diagnostics = {
-    enable = true,
-    icons = {
-      hint = "",
-      info = "",
-      warning = "",
-      error = "",
-    }
-  },
-  update_focused_file = {
-    enable      = true,
-    update_cwd  = false,
-    ignore_list = {}
-  },
-  system_open = {
-    cmd  = nil,
-    args = {}
-  },
-  filters = {
-    dotfiles = false,
-    custom = {}
-  },
-  view = {
-    side = 'left',
-    width = 60,
-  }
-}
 
---
+require'nvim-tree'.setup({
+  view = {
+    width = 50,
+    side = "left"
+  }
+})
+
 -- Theme
 require'catppuccin'.setup()
 vim.g.catppuccin_flavour = "macchiato" -- latte, frappe, macchiato, mocha
-
 vim.cmd[[colorscheme catppuccin]]
+
 -- general vim opts
 vim.o.hlsearch = false              -- Set highlight on search
 
