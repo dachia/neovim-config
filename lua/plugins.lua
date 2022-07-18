@@ -29,5 +29,5 @@ return require('packer').startup(function(use)
   use 'hoob3rt/lualine.nvim'
   --
   -- themes
-  use "catppuccin/nvim"
+  use { "catppuccin/nvim", as = "catppuccin" }
 end)
