@@ -13,9 +13,6 @@ require("plugins")
 local is_win = fn.has('win32') == 1 or false
 
 -- LSP
-local lsp_flags = {
-  debounce_text_changes = 150,
-}
 local opts = { noremap=true, silent=true }
 
 vim.keymap.set('n', '<LocalLeader>e', vim.diagnostic.open_float, opts)
@@ -51,9 +48,17 @@ local lspconfig = require('lspconfig')
 g.coq_settings = { auto_start= true }
 local coq = require('coq')
 
+local lsp_flags = {
+  debounce_text_changes = 150,
+}
 lspconfig['tsserver'].setup(coq.lsp_ensure_capabilities({
   on_attach = on_attach,
   flags = lsp_flags,
+  cmd = { "typescript-language-server", "--stdio", "--log-level", "1" },
+  init_options = {
+    maxTsServerMemory = 4096,
+    disableAutomaticTypingAcquisition = true
+  }
 }))
 
 
