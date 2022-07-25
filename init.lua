@@ -40,7 +40,7 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', '<LocalLeader>ca', vim.lsp.buf.code_action, bufopts)
   vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
   vim.keymap.set('n', '<LocalLeader>t', function ()
-    vim.lsp.buf.format { async = Tree }
+    vim.lsp.buf.formatting { async = Tree }
   end, bufopts)
 end
 
@@ -56,7 +56,7 @@ lspconfig['tsserver'].setup(coq.lsp_ensure_capabilities({
   flags = lsp_flags,
   cmd = { "typescript-language-server", "--stdio", "--log-level", "1" },
   init_options = {
-    maxTsServerMemory = 4096,
+    -- maxTsServerMemory = 4096,
     disableAutomaticTypingAcquisition = true
   }
 }))
