@@ -61,11 +61,10 @@ Installation instructions on windows. Prerequisites:
 
 ## Other requirements
 
-  1. Language servers, neovim/py/ts bindings, linters(older language server isnt working); All are using latest stable, those are the fastest
+  1. Language servers, neovim/py/ts bindings, linters(older language server isnt working)
    `npm i -g typescript typescript-language-server pyright eslint eslint_d prettier neovim`
   
   2. Fire code mono font(only mono because of alacritty) https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode
-  3. Use latest node(works faster), 18 today
 
 ## Install neovim plugins
 
